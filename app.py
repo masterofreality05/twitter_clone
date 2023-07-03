@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, MessageForm
 from models import db, connect_db, User, Message
+import pdb
 
 CURR_USER_KEY = "curr_user"
 
@@ -115,6 +116,15 @@ def logout():
     """Handle logout of user."""
 
     # IMPLEMENT THIS
+    if CURR_USER_KEY in session:
+        do_logout()
+        flash("Successfully logged out!")
+        return redirect("/")
+    
+    else:
+        flash("not yet logged in")
+        return redirect("/")
+
 
 
 ##############################################################################

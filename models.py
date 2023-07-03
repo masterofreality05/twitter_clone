@@ -13,6 +13,9 @@ class Follows(db.Model):
     """Connection of a follower <-> followed_user."""
 
     __tablename__ = 'follows'
+    #this is a many to many relational table referencing the follower and folowee by foreign keys
+    #the many to many relationship listed here will delete on cascade when the foreignkey is deleted
+    #both parts access the primary key of the users table. as users follow other users
 
     user_being_followed_id = db.Column(
         db.Integer,
