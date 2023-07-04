@@ -56,3 +56,8 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
+
+    def test_user_like_message(self):
+        with app.test_client() as client:
+            res = client.post("/users/add_like/100")
+            html = res.get_data(as_text=True)

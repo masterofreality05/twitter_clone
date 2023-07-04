@@ -3,21 +3,18 @@ import os
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_
 
 from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Likes
 import pdb
 
 CURR_USER_KEY = "curr_user"
-
 app = Flask(__name__)
-
-
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgresql:///warbler'))
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
@@ -150,16 +147,25 @@ def users_show(user_id):
     """Show user profile."""
 
     user = User.query.get_or_404(user_id)
+    print("-----------", user.likes)
+    liked_posts = user.likes
+    #----------- [<Message 650>, <Message 948>]
 
     # snagging messages in order from the database;
     # user.messages won't be in order by default
-    messages = (Message
+    own_messages = (Message
                 .query
                 .filter(Message.user_id == user_id)
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    return render_template('users/show.html', user=user, messages=messages)
+    
+   
+    
+    
+    print(own_messages)
+    
+    return render_template('users/show.html', user=user, messages=own_messages, likes=liked_posts)
 
 
 @app.route('/users/<int:user_id>/following')
@@ -317,11 +323,15 @@ def homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-
+    #The homepage for logged-in-users should show the last 100 warbles only
+   #from the users that the logged-in user is following, and that user, 
+    #rather than warbles from all users.
     if g.user:
+        user = User.query.filter(User.id == g.user.id).first()
         messages = (Message
                     .query
                     .order_by(Message.timestamp.desc())
+                    #.filter(or_(Message.user_id == user.id, Message.id in user.likes))
                     .limit(100)
                     .all())
 
@@ -329,6 +339,24 @@ def homepage():
 
     else:
         return render_template('home-anon.html')
+    
+@app.route("/users/add_like/<int:message_number>", methods=['GET','POST'])
+def add_like(message_number):
+    print(message_number, "3383388383")
+    """get and post view to add message to user likes"""
+    if g.user:
+       user_id = g.user.id
+       user = User.query.filter(User.id == user_id).first()
+       message = Message.query.filter(Message.id == message_number).first()
+       new_liked = Likes(user_id=user.id,message_id=message.id)
+       db.session.add(new_liked)
+       db.session.commit()
+       flash("Sucessfully added to likes","success")
+       return redirect("/")
+
+
+
+
 
 ##############################################################################
 # Turn off all caching in Flask
@@ -346,3 +374,4 @@ def add_header(req):
     req.headers["Expires"] = "0"
     req.headers['Cache-Control'] = 'public, max-age=0'
     return req
+
