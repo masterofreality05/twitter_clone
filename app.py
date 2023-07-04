@@ -148,8 +148,9 @@ def users_show(user_id):
 
     user = User.query.get_or_404(user_id)
     print("-----------", user.likes)
-    liked_posts = user.likes
+   
     #----------- [<Message 650>, <Message 948>]
+    liked_posts = user.likes
 
     # snagging messages in order from the database;
     # user.messages won't be in order by default
@@ -159,9 +160,6 @@ def users_show(user_id):
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    
-   
-    
     
     print(own_messages)
     
@@ -299,7 +297,7 @@ def messages_show(message_id):
     return render_template('messages/show.html', message=msg)
 
 
-@app.route('/messages/<int:message_id>/delete', methods=["POST"])
+@app.route('/messages/<int:message_id>/delete', methods=["GET","POST"])
 def messages_destroy(message_id):
     """Delete a message."""
 
@@ -328,14 +326,22 @@ def homepage():
     #rather than warbles from all users.
     if g.user:
         user = User.query.filter(User.id == g.user.id).first()
+        user_likes = []
+        user_messages = []
+        for message in user.likes:
+            user_likes.append(message.id)
+            for message in user.messages:
+                user_messages.append(message.id)
         messages = (Message
                     .query
                     .order_by(Message.timestamp.desc())
                     #.filter(or_(Message.user_id == user.id, Message.id in user.likes))
                     .limit(100)
                     .all())
+        
+        print("our likes list is", user_likes)
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, user=user, likes= user_likes, own_messages=user_messages)
 
     else:
         return render_template('home-anon.html')
