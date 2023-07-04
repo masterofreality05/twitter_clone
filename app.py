@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm
+from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
 from models import db, connect_db, User, Message
 import pdb
 
@@ -118,14 +118,12 @@ def logout():
     # IMPLEMENT THIS
     if CURR_USER_KEY in session:
         do_logout()
-        flash("Successfully logged out!")
+        flash("Successfully logged out!", "success")
         return redirect("/")
     
     else:
         flash("not yet logged in")
         return redirect("/")
-
-
 
 ##############################################################################
 # General user routes:
@@ -221,9 +219,31 @@ def stop_following(follow_id):
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
+    if g.user:
+        user_id = session[CURR_USER_KEY]
+        user = User.query.filter(User.id == user_id).first()
+        form = UserEditForm(obj=user)
 
-    # IMPLEMENT THIS
 
+        if form.validate_on_submit():
+            if user.authenticate(user.username, form.password.data):
+                for k,v in form.data.items():
+                   print("key is ", k, "value is ", v)
+                   setattr(user, k, v)
+                db.session.commit()    
+                flash("User updated successfully","success")
+                return redirect(f"/users/{user.id}")
+            else:
+                flash("password not entered correctly","danger")
+             
+
+            
+
+        return render_template('users/edit.html', form=form)
+    
+    else:
+        flash("You need to be logged in to edit your profile","danger")
+        return redirect("/")
 
 @app.route('/users/delete', methods=["POST"])
 def delete_user():
@@ -239,7 +259,6 @@ def delete_user():
     db.session.commit()
 
     return redirect("/signup")
-
 
 ##############################################################################
 # Messages routes:
@@ -266,7 +285,6 @@ def messages_add():
 
     return render_template('messages/new.html', form=form)
 
-
 @app.route('/messages/<int:message_id>', methods=["GET"])
 def messages_show(message_id):
     """Show a message."""
@@ -289,10 +307,8 @@ def messages_destroy(message_id):
 
     return redirect(f"/users/{g.user.id}")
 
-
 ##############################################################################
 # Homepage and error pages
-
 
 @app.route('/')
 def homepage():
@@ -313,7 +329,6 @@ def homepage():
 
     else:
         return render_template('home-anon.html')
-
 
 ##############################################################################
 # Turn off all caching in Flask

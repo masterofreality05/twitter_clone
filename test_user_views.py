@@ -2,19 +2,14 @@ from unittest import TestCase
 from app import app, do_logout
 
 
-class TestDbManipulation(TestCase):
+class TestHomepageViews(TestCase):
     """unit tests to measure our sql interaction with crud"""
 
     def setUp(self):
         """clean up any existing pets by clearing rows in our table"""
 
- 
-
     def tearDown(self):
         """clean up any fouled transaction with rollback"""
-
-
-    
 
     def test_homepage_logged_out(self):
         """test the homepage view with no user logged in"""
