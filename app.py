@@ -360,6 +360,22 @@ def add_like(message_number):
        flash("Sucessfully added to likes","success")
        return redirect("/")
 
+@app.route("/users/remove_like/<int:message_number>", methods=['GET','POST'])
+def remove_like(message_number):
+    print(message_number, "3383388383")
+    """get and post view to add message to user likes"""
+
+    if g.user:
+       user_id = g.user.id
+       user = User.query.filter(User.id == user_id).first()
+       message = Message.query.filter(Message.id == message_number).first()
+       remove_like_relation = Likes.query.filter(Likes.message_id == message.id, Likes.user_id == user.id).first()
+       print("removed like-------------", remove_like_relation.id)
+       db.session.delete(remove_like_relation)
+       db.session.commit()
+       flash("Sucessfully removed from likes","danger")
+       return redirect("/")
+
 
 
 

@@ -550,6 +550,12 @@ p.card-bio {
   object-fit: fill;
 }
 
-.message-button {
-  
+.form-button {
+  position: absolute;
+  right: 0;
+  padding: 20px;
+
+
+
+
 }

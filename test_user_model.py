@@ -4,7 +4,6 @@
 #
 #    python -m unittest test_user_model.py
 
-
 import os
 from unittest import TestCase
 
@@ -25,6 +24,18 @@ from app import app
 # Create our tables (we do this here, so we only create the tables
 # once for all tests --- in each test, we'll delete the data
 # and create fresh new clean test data
+
+
+#Does the repr method work as expected?
+#Does is_following successfully detect when user1 is following user2?
+#Does is_following successfully detect when user1 is not following user2?
+#Does is_followed_by successfully detect when user1 is followed by user2?
+#Does is_followed_by successfully detect when user1 is not followed by user2?
+#Does User.create successfully create a new user given valid credentials?
+#Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail?
+#Does User.authenticate successfully return a user when given a valid username and password?
+#Does User.authenticate fail to return a user when the username is invalid?
+#Does User.authenticate fail to return a user when the password is invalid?
 
 db.create_all()
 
@@ -53,9 +64,14 @@ class UserModelTestCase(TestCase):
         db.session.add(u)
         db.session.commit()
 
+        model_test = User.query.filter(User.username == "testuser").first()
+
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
+        #Does the repr method work as expected?
+        self.assertIn("User #", model_test.__repr__())
+        self.assertIn("test@test.com", model_test.__repr__())
 
     def test_user_like_message(self):
         with app.test_client() as client:
