@@ -14,7 +14,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///warbler'))
+    os.environ.get('DATABASE_URL', 'postgresql:///warbler-test'))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
@@ -162,8 +162,9 @@ def users_show(user_id):
                 .all())
     
     print(own_messages)
+    number_of_likes =len (user.likes)
     
-    return render_template('users/show.html', user=user, messages=own_messages, likes=liked_posts)
+    return render_template('users/show.html', user=user, messages=own_messages, likes=liked_posts, number_of_likes=number_of_likes)
 
 
 @app.route('/users/<int:user_id>/following')

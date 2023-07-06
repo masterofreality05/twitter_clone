@@ -1,15 +1,18 @@
 from unittest import TestCase
-from app import app, do_logout
+from app import app, do_logout, db
+
+#python -m unittest test_user_model.py
 
 
 class TestHomepageViews(TestCase):
     """unit tests to measure our sql interaction with crud"""
 
     def setUp(self):
-        """clean up any existing pets by clearing rows in our table"""
+        """clean up any existing rows in our table"""
 
     def tearDown(self):
         """clean up any fouled transaction with rollback"""
+        db.session.rollback()
 
     def test_homepage_logged_out(self):
         """test the homepage view with no user logged in"""

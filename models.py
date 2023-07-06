@@ -110,7 +110,8 @@ class User(db.Model):
         "User",
         secondary="follows",
         primaryjoin=(Follows.user_following_id == id),
-        secondaryjoin=(Follows.user_being_followed_id == id)
+        secondaryjoin=(Follows.user_being_followed_id == id),
+        overlaps="followers"
     )
 
     likes = db.relationship(
@@ -125,6 +126,7 @@ class User(db.Model):
         """Is this user followed by `other_user`?"""
 
         found_user_list = [user for user in self.followers if user == other_user]
+        print("the length of follows is", len(found_user_list))
         return len(found_user_list) == 1
 
     def is_following(self, other_user):
@@ -200,7 +202,8 @@ class Message(db.Model):
         nullable=False,
     )
 
-    user = db.relationship('User')
+    user = db.relationship('User',
+                           overlaps="messages")
 
 
 def connect_db(app):
