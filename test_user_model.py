@@ -85,22 +85,32 @@ class UserModelTestCase(TestCase):
         db.session.add(following)
         db.session.commit()
         follow_info = Follows.query.filter(Follows.user_being_followed_id == u.id).first()
-        print("heres our follow info", follow_info)
 
         #Does is_following successfully detect when user1 is following user2?
         self.assertEqual(True, follow_u.is_following(u))
 
-        
-
         #Does is_following successfully detect when user1 is not following user2?
         self.assertEqual(False, u.is_following(non))
-
-        
 
         #Does is_followed_by successfully detect when user1 is followed by user2?
         self.assertEqual(True, u.is_followed_by(follow_u))
 
-
         #Does is_followed_by successfully detect when user1 is not followed by user2?  
         self.assertEqual(False, follow_u.is_followed_by(u))
+
+        #Does User.create successfully create a new user given valid credentials?
+    def test_usercreate(self):
+        """does the class method (factory) reproduce a user instance?"""
+        jerry = User.signup("jerry","jerry@eircom.ie", "fish","www.img.irl")
+
+        self.assertEqual("jerry", jerry.username)
+        db.session.rollback()
+
+
+
+
+        #Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail?
+        #Does User.authenticate successfully return a user when given a valid username and password?
+        #Does User.authenticate fail to return a user when the username is invalid?
+        #Does User.authenticate fail to return a user when the password is invalid?
 
