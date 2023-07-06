@@ -70,9 +70,16 @@ class UserModelTestCase(TestCase):
 
     def test_user_isfollowed_by(self):
         """does the class method isfolllowed by work?"""
+
+        non_follower = User(email="nontest@test.com",
+                           username="nontestuser",
+                            password="HASHED_PASSWORD"
+        )
+        db.session.add(non_follower)
+        db.session.commit()
         u = User.query.filter(User.username == "testuser").first()
         follow_u = User.query.filter(User.username == "followtestuser").first()
-        print("---------u id", u.id, "------------follower id", follow_u.id)
+        non = User.query.filter(User.username == "nontestuser").first()
 
         following = Follows(user_being_followed_id=u.id, user_following_id=follow_u.id)
         db.session.add(following)
@@ -80,5 +87,20 @@ class UserModelTestCase(TestCase):
         follow_info = Follows.query.filter(Follows.user_being_followed_id == u.id).first()
         print("heres our follow info", follow_info)
 
+        #Does is_following successfully detect when user1 is following user2?
+        self.assertEqual(True, follow_u.is_following(u))
+
+        
+
+        #Does is_following successfully detect when user1 is not following user2?
+        self.assertEqual(False, u.is_following(non))
+
+        
+
+        #Does is_followed_by successfully detect when user1 is followed by user2?
         self.assertEqual(True, u.is_followed_by(follow_u))
+
+
+        #Does is_followed_by successfully detect when user1 is not followed by user2?  
+        self.assertEqual(False, follow_u.is_followed_by(u))
 
