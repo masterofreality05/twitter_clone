@@ -14,7 +14,6 @@ class TestHomepageViews(TestCase):
     def setUp(self):
         """clean up any existing rows in our table"""
         
-     
 
     def tearDown(self):
         """clean up any fouled transaction with rollback"""
@@ -40,10 +39,11 @@ class TestHomepageViews(TestCase):
             do_logout()
        
 
-     # When you’re logged in, can you see the follower / following pages for any user?
+     #When you’re logged out, you cannot access the follower / following pages for any user?
+     #When you’re logged out, are you disallowed from visiting a user’s follower / following pages?
 
     def test_user_following_view_loggedout(self):
-        """test for the user following page when logged in"""
+        """test for the user following page when logged out"""
         with app.test_client() as client:
             app.config['WTF_CSRF_ENABLED'] = False
             user = User.query.filter(User.username == "testuser").first()
@@ -55,15 +55,25 @@ class TestHomepageViews(TestCase):
             html = res.get_data(as_text=True)
             self.assertIn("New to Warbler?", html)
             do_logout()
+    
+    def test_user_following_view_loggedin(self):
+        """test for the user following page when logged in"""
+        with app.test_client() as client:
+            user = User.query.filter(User.username == "testuser").first()
+            CURR_USER_KEY = "curr_user"
+  
+            with client.session_transaction() as sess:
+                    sess[CURR_USER_KEY] = user.id
+            print("test_user user inputted is", user)
+            res = client.get(f"/users/{user.id}/following",
+                             follow_redirects=True)
+            html = res.get_data(as_text=True)
+            self.assertIn("Following", html)
+            do_logout()
 
 
 
-#When you’re logged out, are you disallowed from visiting a user’s follower / following pages?
-#When you’re logged in, can you add a message as yourself?
-#When you’re logged in, can you delete a message as yourself?
-#When you’re logged out, are you prohibited from adding messages?
-#When you’re logged out, are you prohibited from deleting messages?
-#When you’re logged in, are you prohibiting from adding a message as another user?
-#When you’re logged in, are you prohibiting from deleting a message as another user?
+
+
 
 
