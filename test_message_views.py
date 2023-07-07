@@ -41,6 +41,7 @@ class MessageViewTestCase(TestCase):
 
         User.query.delete()
         Message.query.delete()
+        
 
         self.client = app.test_client()
 

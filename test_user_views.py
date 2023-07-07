@@ -5,9 +5,6 @@ from models import User
 
 #python -m unittest test_user_views.py
 
-
-
-
 class TestHomepageViews(TestCase):
     """unit tests to measure our sql interaction with crud"""
 
@@ -37,7 +34,6 @@ class TestHomepageViews(TestCase):
             self.assertEqual(res.status_code, 200)
             self.assertIn("Hello", html)
             do_logout()
-       
 
      #When you’re logged out, you cannot access the follower / following pages for any user?
      #When you’re logged out, are you disallowed from visiting a user’s follower / following pages?
@@ -56,12 +52,24 @@ class TestHomepageViews(TestCase):
             self.assertIn("New to Warbler?", html)
             do_logout()
     
+    #When you’re logged in, you can access the follower / following pages for any user?
+    
     def test_user_following_view_loggedin(self):
         """test for the user following page when logged in"""
         with app.test_client() as client:
             user = User.query.filter(User.username == "testuser").first()
             CURR_USER_KEY = "curr_user"
-  
+
+        # Since we need to change the session to mimic logging in,
+        # we need to use the changing-session trick:
+        #we have first established our app.testclient as client. 
+        #within that we can access the session of our test client with the session_transaction method called on client
+        #we then define that as sess for later use
+        #here we can attribute "sess" with CURR_USER_KEY which we obtain from the id property on our user variable
+        #just to recap our user variable is an class instance stored in our db queried via SQL by its username of "testuser"
+        #now that we have stored a current user in sess aka client.session_transaction() we can mimic logging in
+        #therefore now the view testing is ready to test if we return the correct html markup from our get request
+
             with client.session_transaction() as sess:
                     sess[CURR_USER_KEY] = user.id
             print("test_user user inputted is", user)
