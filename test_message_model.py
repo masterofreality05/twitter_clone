@@ -8,10 +8,7 @@ class TestMessageModel(TestCase):
 
     def setUp(self):
         """do this before each test"""
-     
         Message.query.delete()
-       
-
     
     def tearDown(self):
         """do this after each test"""
@@ -28,6 +25,8 @@ class TestMessageModel(TestCase):
         print(found_message.text)
         self.assertEqual(found_message.text, "testmessagetext")
         self.assertEqual(found_message.user_id, user.id)
+        self.assertEqual(found_message.user.username, "testuser")
+
 
 
         

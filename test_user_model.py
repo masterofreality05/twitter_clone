@@ -57,13 +57,10 @@ class UserModelTestCase(TestCase):
 
         self.client = app.test_client()
 
-        
-
     def test_user_model(self):
         """Does basic model work?"""
         u = User.query.filter(User.username == "testuser").first()
 
-      
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
@@ -106,10 +103,27 @@ class UserModelTestCase(TestCase):
         self.assertEqual("jerry", jerry.username)
         db.session.rollback()
 
+class TestUserMethods(TestCase):
+    """testing the methods and factory methods of our user instances"""
+    def test_user_create_method(self):
+           """does user.create fail to create a new user if any of the validations fail?"""
+           with app.test_client() as client:
+                app.config['WTF_CSRF_ENABLED'] = False
+                users = User.query.all()
+                print("our users are", users)
+                res = client.post("/signup", data={"username":"2followtestuser","password":"abcdefg","email":"test@testuser.com"},
+                                  follow_redirects=True)
+                html = res.get_data(as_text=True)
+                self.assertIn("Username already taken", html)
 
 
 
         #Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail?
+
+    
+
+        
+
         #Does User.authenticate successfully return a user when given a valid username and password?
         #Does User.authenticate fail to return a user when the username is invalid?
         #Does User.authenticate fail to return a user when the password is invalid?

@@ -1,6 +1,6 @@
 
 from unittest import TestCase
-from app import app, do_logout, do_login, db, g, add_user_to_g, session
+from app import app, do_logout, db
 from models import User
 
 #python -m unittest test_user_views.py
@@ -42,10 +42,6 @@ class TestHomepageViews(TestCase):
         """test for the user following page when logged out"""
         with app.test_client() as client:
             app.config['WTF_CSRF_ENABLED'] = False
-            user = User.query.filter(User.username == "testuser").first()
-            
-            print("test_user user inputted is", user)
-           
             res = client.get("/users/370/following",
                              follow_redirects=True)
             html = res.get_data(as_text=True)
@@ -72,7 +68,6 @@ class TestHomepageViews(TestCase):
 
             with client.session_transaction() as sess:
                     sess[CURR_USER_KEY] = user.id
-            print("test_user user inputted is", user)
             res = client.get(f"/users/{user.id}/following",
                              follow_redirects=True)
             html = res.get_data(as_text=True)
