@@ -147,9 +147,7 @@ def users_show(user_id):
     """Show user profile."""
 
     user = User.query.get_or_404(user_id)
-    print("-----------", user.likes)
-   
-    #----------- [<Message 650>, <Message 948>]
+
     liked_posts = user.likes
 
     # snagging messages in order from the database;
