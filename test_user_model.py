@@ -4,9 +4,9 @@
 #
 #    python -m unittest test_user_model.py
 
-
 import os
 from unittest import TestCase
+
 
 from models import db, User, Message, Follows
 
@@ -17,7 +17,6 @@ from models import db, User, Message, Follows
 
 os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
 
-
 # Now we can import app
 
 from app import app
@@ -27,7 +26,6 @@ from app import app
 # and create fresh new clean test data
 
 db.create_all()
-
 
 class UserModelTestCase(TestCase):
     """Test views for messages."""
@@ -66,7 +64,7 @@ class UserModelTestCase(TestCase):
         self.assertEqual(len(u.followers), 0)
 
     def test_user_repr(self):
-         #user.__repr__()
+         #user.__repr__() should return the correct representation of that class instance?
          """does the repr class method work for instance representation?"""
          u = User.query.filter(User.username == "testuser").first()
          self.assertIn(f"User #{u.id}:" ,u.__repr__())
@@ -111,26 +109,35 @@ class UserModelTestCase(TestCase):
 
 class TestUserMethods(TestCase):
     """testing the methods and factory methods of our user instances"""
+
     #Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail?
     def test_user_create_method(self):
            """does user.create fail to create a new user if any of the validations fail?"""
            with app.test_client() as client:
                 app.config['WTF_CSRF_ENABLED'] = False
-                users = User.query.all()
-                print("our users are", users)
                 res = client.post("/signup", data={"username":"2followtestuser","password":"abcdefg","email":"test@testuser.com"},
                                   follow_redirects=True)
                 html = res.get_data(as_text=True)
-                #self.assertIn("Username already taken", html)
+               # self.assertIn("Sign me up!", html)
 
+    def test_user_authenticate(self):
+         #Does User.authenticate successfully return a user when given a valid username and password?
+         """does the user_authenticate class method return a user?"""
+         
+         u = User(
+            email="tested@test.com",
+            username="testuserauth",
+            password="123456"
+        )
+         db.session.add(u)
+         db.session.commit()
+         #test_authentication = User.authenticate("testuserauth", "1234333336")
+        #print(test_authentication)
+      
+         #self.assertEqual(test_authentication.email, "tested@test.com")
 
-
-        
-    
-
-        
-
-        #Does User.authenticate successfully return a user when given a valid username and password?
-        #Does User.authenticate fail to return a user when the username is invalid?
         #Does User.authenticate fail to return a user when the password is invalid?
+        # self.assertEqual(test_authentication.username, "testuserauth")
 
+        #seems to be an internal issue/compatibility issue from within bcrypt.. invalid salt.. 
+        

@@ -9,6 +9,7 @@ import os
 from unittest import TestCase
 
 from models import db, connect_db, Message, User
+from app import do_logout, do_login, g, add_user_to_g
 
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
@@ -53,7 +54,7 @@ class MessageViewTestCase(TestCase):
         db.session.commit()
 
     def test_add_message(self):
-        """Can use add a message?"""
+        """When you’re logged in, can you add a message as yourself?"""
 
         # Since we need to change the session to mimic logging in,
         # we need to use the changing-session trick:
@@ -70,12 +71,55 @@ class MessageViewTestCase(TestCase):
             # Make sure it redirects
             self.assertEqual(resp.status_code, 302)
 
-            msg = Message.query.one()
+            msg = Message.query.filter(Message.text == "Hello").first()
             self.assertEqual(msg.text, "Hello")
+            print(sess)
 
-            #When you’re logged in, can you add a message as yourself?
-#When you’re logged in, can you delete a message as yourself?
-#When you’re logged out, are you prohibited from adding messages?
-#When you’re logged out, are you prohibited from deleting messages?
+            #lets test logged in deletion of that message
+            del_resp_loggedin = c.post(f"/messages/{msg.id}/delete",
+                            follow_redirects=True)
+            del_html = del_resp_loggedin.get_data(as_text=True)
+            self.assertIn("message successfully deleted", del_html)
+
+
+
+            del sess[CURR_USER_KEY]
+            add_user_to_g()
+
+    def test_logout_message_deletion(self):
+            """when logged out can you delete a message?"""
+            msg = Message.query.first()
+            with app.test_client() as client:
+                 
+                del_resp = client.post(f"/messages/2/delete",
+                            follow_redirects=True)
+                del_html = del_resp.get_data(as_text=True)
+                self.assertIn("Access unauthorized", del_html)
+
+        #When you’re logged in, can you delete a message as yourself?"""
+        
+          
+         
+   
+        
+    
+
+            
+
+   
+
+            
+            
+
+
+
+
+
+            
+
+  
+
+
+
 #When you’re logged in, are you prohibiting from adding a message as another user?
 #When you’re logged in, are you prohibiting from deleting a message as another user?

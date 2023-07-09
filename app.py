@@ -28,7 +28,6 @@ connect_db(app)
 ##############################################################################
 # User signup/login/logout
 
-
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
@@ -69,15 +68,20 @@ def signup():
 
     if form.validate_on_submit():
         try:
+            
+
             user = User.signup(
                 username=form.username.data,
                 password=form.password.data,
                 email=form.email.data,
                 image_url=form.image_url.data or User.image_url.default.arg,
             )
+
+            print("passed user is", user)
             db.session.commit()
 
         except IntegrityError:
+            print("our integrity error was caught?!")
             flash("Username already taken", 'danger')
             return render_template('users/signup.html', form=form)
 
@@ -308,6 +312,7 @@ def messages_destroy(message_id):
     msg = Message.query.get(message_id)
     db.session.delete(msg)
     db.session.commit()
+    flash("message successfully deleted","success")
 
     return redirect(f"/users/{g.user.id}")
 
@@ -375,10 +380,6 @@ def remove_like(message_number):
        db.session.commit()
        flash("Sucessfully removed from likes","danger")
        return redirect("/")
-
-
-
-
 
 ##############################################################################
 # Turn off all caching in Flask
