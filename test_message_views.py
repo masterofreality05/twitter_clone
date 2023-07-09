@@ -28,7 +28,6 @@ from app import app, CURR_USER_KEY
 # and create fresh new clean test data
 
 db.create_all()
-
 # Don't have WTForms use CSRF at all, since it's a pain to test
 
 app.config['WTF_CSRF_ENABLED'] = False
@@ -42,8 +41,6 @@ class MessageViewTestCase(TestCase):
 
         User.query.delete()
         Message.query.delete()
-        
-
         self.client = app.test_client()
 
         self.testuser = User.signup(username="testuser",
@@ -62,15 +59,11 @@ class MessageViewTestCase(TestCase):
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.testuser.id
-
             # Now, that session setting is saved, so we can have
             # the rest of ours test
-
             resp = c.post("/messages/new", data={"text": "Hello"})
-
             # Make sure it redirects
             self.assertEqual(resp.status_code, 302)
-
             msg = Message.query.filter(Message.text == "Hello").first()
             self.assertEqual(msg.text, "Hello")
             print(sess)
@@ -96,7 +89,6 @@ class MessageViewTestCase(TestCase):
                 del_html = del_resp.get_data(as_text=True)
                 self.assertIn("Access unauthorized", del_html)
 
-        #When you’re logged in, can you delete a message as yourself?"""
         
           
          
