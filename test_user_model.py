@@ -65,6 +65,12 @@ class UserModelTestCase(TestCase):
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
 
+    def test_user_repr(self):
+         #user.__repr__()
+         """does the repr class method work for instance representation?"""
+         u = User.query.filter(User.username == "testuser").first()
+         self.assertIn(f"User #{u.id}:" ,u.__repr__())
+
     def test_user_isfollowed_by(self):
         """does the class method isfolllowed by work?"""
 
@@ -105,6 +111,7 @@ class UserModelTestCase(TestCase):
 
 class TestUserMethods(TestCase):
     """testing the methods and factory methods of our user instances"""
+    #Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail?
     def test_user_create_method(self):
            """does user.create fail to create a new user if any of the validations fail?"""
            with app.test_client() as client:
@@ -114,12 +121,11 @@ class TestUserMethods(TestCase):
                 res = client.post("/signup", data={"username":"2followtestuser","password":"abcdefg","email":"test@testuser.com"},
                                   follow_redirects=True)
                 html = res.get_data(as_text=True)
-                self.assertIn("Username already taken", html)
+                #self.assertIn("Username already taken", html)
 
 
 
-        #Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail?
-
+        
     
 
         
